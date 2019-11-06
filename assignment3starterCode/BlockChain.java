@@ -102,6 +102,9 @@ public class BlockChain {
         Transaction[] possibleTxs = new Transaction[block.getTransactions().size()];
         possibleTxs = block.getTransactions().toArray(possibleTxs);
         Transaction[] handledTxs = txHandler.handleTxs(possibleTxs);
+        if (handledTxs.length < possibleTxs.length) {
+            return false;
+        }
 
         utxoPool = new UTXOPool(txHandler.getUTXOPool());
 
@@ -111,7 +114,7 @@ public class BlockChain {
         }
 
         if (block.getTransactions() != null) {
-            for (Transaction transaction : block.getTransactions()) {
+            for (Transaction transaction : handledTxs) {
                 txPool.removeTransaction(transaction.getHash());
             }
         }
@@ -125,9 +128,7 @@ public class BlockChain {
                 maxHeightBlockInfo = newBlockInfo;
             }
         }
-        blockInfos.add(newBlockInfo);
-
-        return true;
+        return blockInfos.add(newBlockInfo);
     }
 
     /** Add a transaction to the transaction pool */
